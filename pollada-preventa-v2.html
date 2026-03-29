@@ -1279,23 +1279,45 @@ async function enviarReserva() {
   btn.disabled = true;
   btn.textContent = '⏳ Enviando...';
 
+  // Leer imagen captura en base64 si existe
+  let capturaBase64 = '';
+  const previewImg = document.getElementById('preview-img');
+  if (previewImg && previewImg.src && previewImg.src.startsWith('data:')) {
+    capturaBase64 = previewImg.src;
+  }
+
+  // Leer distrito
+  const distritoEl = document.getElementById('fDistrito');
+  const distritoVal = distritoEl ? distritoEl.value.split('|')[0] : '';
+
+  // Calcular totales
+  const totalPorciones = cantPierna + cantPecho;
+  const totalPrecPorciones = totalPorciones * 20;
+  const totalFinal = totalPrecPorciones + costoEnvio;
+
   const datos = {
     fecha: new Date().toLocaleString('es-PE'),
     nombre: document.getElementById('fNombre').value.trim(),
-    cantidad: cantidad,
-    tipo: tipo,
-    total: cantidad * 20,
-    direccion: document.getElementById('fDir').value.trim(),
-    referencia: document.getElementById('fRef').value.trim(),
     telefono: document.getElementById('fTel').value.trim(),
+    cantPierna: cantPierna,
+    cantPecho: cantPecho,
+    tipoEntrega: tipoEntrega,
+    distrito: tipoEntrega === 'delivery' ? distritoVal : '',
+    direccion: tipoEntrega === 'delivery' ? (document.getElementById('fDir') ? document.getElementById('fDir').value.trim() : '') : 'Recojo en local',
+    referencia: document.getElementById('fRef') ? document.getElementById('fRef').value.trim() : '',
+    mapsLink: document.getElementById('fMaps') ? document.getElementById('fMaps').value.trim() : '',
+    metodoPago: metodoPago,
+    costoEnvio: costoEnvio,
+    totalFinal: totalFinal,
+    capturaBase64: capturaBase64,
   };
 
   // Guardar local siempre
-  reservas.unshift({ n: datos.nombre, c: datos.cantidad, h: new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}) });
+  reservas.unshift({ n: datos.nombre, c: totalPorciones, h: new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}) });
   save();
   render();
 
-  // Intentar enviar a Apps Script si está configurado
+  // Enviar a Google Sheets via Apps Script
   if (APPS_SCRIPT_URL) {
     try {
       await fetch(APPS_SCRIPT_URL, {
@@ -1312,8 +1334,13 @@ async function enviarReserva() {
   btn.disabled = false;
   btn.textContent = 'CONFIRMAR RESERVA ✓';
   // Limpiar form
-  ['fNombre','fDir','fRef','fTel'].forEach(id => document.getElementById(id).value = '');
-  cantPierna = 0; cantPecho = 0; actualizarQty();
+  ['fNombre','fDir','fRef','fTel','fMaps'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  cantPierna = 0; cantPecho = 0; metodoPago = ''; costoEnvio = 0;
+  actualizarQty();
+  // Limpiar preview captura
+  document.getElementById('preview-img').src = '';
+  document.getElementById('upload-placeholder').style.display = 'block';
+  document.getElementById('upload-preview').style.display = 'none';
 }
 
 function mostrarCaptura(input) {
