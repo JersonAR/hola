@@ -1166,15 +1166,17 @@ function validarMaps(inp) {
 }
 
 function calcularEnvio() {
+  const avisoLejana = document.getElementById('aviso-zona-lejana');
   const sel = document.getElementById('fDistrito').value;
   if (!sel) return;
   const parts = sel.split('|');
   const distrito = parts[0];
   costoEnvio = parseInt(parts[1]);
-  const zonas = {5:'🟢 Zona A — Muy cerca de Ate', 10:'🟡 Zona B — Distritos cercanos', 15:'🟠 Zona C — Lima centro/sur', 20:'🔴 Zona D — Lima norte', 25:'⚫ Zona E — Distritos lejanos'};
+  const zonas = {5:'🟢 Zona A — Muy cerca (Ate y alrededores)', 8:'🟡 Zona B — Distritos cercanos', 10:'🟠 Zona C — Lima centro', 12:'🔴 Zona D — Distritos lejanos'};
   document.getElementById('costo-envio').style.display = 'flex';
   document.getElementById('zona-label').textContent = zonas[costoEnvio] || '';
   document.getElementById('precio-envio').textContent = 'S/ ' + costoEnvio;
+  if (avisoLejana) avisoLejana.style.display = costoEnvio >= 12 ? 'block' : 'none';
 }
 
 function selPago(m) {
@@ -1568,47 +1570,45 @@ setInterval(fetchConteoRemoto, 30000);
                 <option value="El Agustino|5" style="background:#1A0A00;">El Agustino</option>
                 <option value="San Luis|5" style="background:#1A0A00;">San Luis</option>
               </optgroup>
-              <optgroup label="🟡 Zona B — S/10" style="background:#1A0A00;">
-                <option value="La Victoria|10" style="background:#1A0A00;">La Victoria</option>
-                <option value="Cercado de Lima|10" style="background:#1A0A00;">Cercado de Lima</option>
-                <option value="Breña|10" style="background:#1A0A00;">Breña</option>
-                <option value="Rímac|10" style="background:#1A0A00;">Rímac</option>
-                <option value="La Molina|10" style="background:#1A0A00;">La Molina</option>
-                <option value="Lurigancho-Chosica|10" style="background:#1A0A00;">Lurigancho / Chosica</option>
-                <option value="Chaclacayo|10" style="background:#1A0A00;">Chaclacayo</option>
+              <optgroup label="🟡 Zona B — S/8" style="background:#1A0A00;">
+                <option value="La Victoria|8" style="background:#1A0A00;">La Victoria</option>
+                <option value="Cercado de Lima|8" style="background:#1A0A00;">Cercado de Lima</option>
+                <option value="Breña|8" style="background:#1A0A00;">Breña</option>
+                <option value="Rímac|8" style="background:#1A0A00;">Rímac</option>
+                <option value="La Molina|8" style="background:#1A0A00;">La Molina</option>
+                <option value="Lurigancho-Chosica|8" style="background:#1A0A00;">Lurigancho / Chosica</option>
+                <option value="Chaclacayo|8" style="background:#1A0A00;">Chaclacayo</option>
               </optgroup>
-              <optgroup label="🟠 Zona C — S/15" style="background:#1A0A00;">
-                <option value="San Borja|15" style="background:#1A0A00;">San Borja</option>
-                <option value="Surco|15" style="background:#1A0A00;">Surco</option>
-                <option value="Surquillo|15" style="background:#1A0A00;">Surquillo</option>
-                <option value="San Isidro|15" style="background:#1A0A00;">San Isidro</option>
-                <option value="Miraflores|15" style="background:#1A0A00;">Miraflores</option>
-                <option value="Barranco|15" style="background:#1A0A00;">Barranco</option>
-                <option value="Chorrillos|15" style="background:#1A0A00;">Chorrillos</option>
-                <option value="Lince|15" style="background:#1A0A00;">Lince</option>
-                <option value="Jesús María|15" style="background:#1A0A00;">Jesús María</option>
-                <option value="Magdalena del Mar|15" style="background:#1A0A00;">Magdalena del Mar</option>
-                <option value="Pueblo Libre|15" style="background:#1A0A00;">Pueblo Libre</option>
-                <option value="San Miguel|15" style="background:#1A0A00;">San Miguel</option>
-                <option value="San Juan de Miraflores|15" style="background:#1A0A00;">San Juan de Miraflores</option>
-                <option value="Villa María del Triunfo|15" style="background:#1A0A00;">Villa María del Triunfo</option>
-                <option value="Villa El Salvador|15" style="background:#1A0A00;">Villa El Salvador</option>
+              <optgroup label="🟠 Zona C — S/10" style="background:#1A0A00;">
+                <option value="San Borja|10" style="background:#1A0A00;">San Borja</option>
+                <option value="Surco|10" style="background:#1A0A00;">Surco</option>
+                <option value="Surquillo|10" style="background:#1A0A00;">Surquillo</option>
+                <option value="San Isidro|10" style="background:#1A0A00;">San Isidro</option>
+                <option value="Miraflores|10" style="background:#1A0A00;">Miraflores</option>
+                <option value="Barranco|10" style="background:#1A0A00;">Barranco</option>
+                <option value="Chorrillos|10" style="background:#1A0A00;">Chorrillos</option>
+                <option value="Lince|10" style="background:#1A0A00;">Lince</option>
+                <option value="Jesús María|10" style="background:#1A0A00;">Jesús María</option>
+                <option value="Magdalena del Mar|10" style="background:#1A0A00;">Magdalena del Mar</option>
+                <option value="Pueblo Libre|10" style="background:#1A0A00;">Pueblo Libre</option>
+                <option value="San Miguel|10" style="background:#1A0A00;">San Miguel</option>
+                <option value="San Juan de Miraflores|10" style="background:#1A0A00;">San Juan de Miraflores</option>
+                <option value="Villa María del Triunfo|10" style="background:#1A0A00;">Villa María del Triunfo</option>
+                <option value="Villa El Salvador|10" style="background:#1A0A00;">Villa El Salvador</option>
               </optgroup>
-              <optgroup label="🔴 Zona D — S/20" style="background:#1A0A00;">
-                <option value="San Juan de Lurigancho|20" style="background:#1A0A00;">San Juan de Lurigancho</option>
-                <option value="Los Olivos|20" style="background:#1A0A00;">Los Olivos</option>
-                <option value="San Martín de Porres|20" style="background:#1A0A00;">San Martín de Porres</option>
-                <option value="Independencia|20" style="background:#1A0A00;">Independencia</option>
-                <option value="Comas|20" style="background:#1A0A00;">Comas</option>
-                <option value="Callao|20" style="background:#1A0A00;">Callao</option>
-                <option value="Bellavista|20" style="background:#1A0A00;">Bellavista</option>
-              </optgroup>
-              <optgroup label="⚫ Zona E — S/25 (lejos)" style="background:#1A0A00;">
-                <option value="Carabayllo|25" style="background:#1A0A00;">Carabayllo</option>
-                <option value="Puente Piedra|25" style="background:#1A0A00;">Puente Piedra</option>
-                <option value="Lurín|25" style="background:#1A0A00;">Lurín</option>
-                <option value="Pachacamac|25" style="background:#1A0A00;">Pachacamac</option>
-                <option value="Ventanilla|25" style="background:#1A0A00;">Ventanilla</option>
+              <optgroup label="🔴 Zona D — S/12 (lejanos)" style="background:#1A0A00;">
+                <option value="San Juan de Lurigancho|12" style="background:#1A0A00;">San Juan de Lurigancho</option>
+                <option value="Los Olivos|12" style="background:#1A0A00;">Los Olivos</option>
+                <option value="San Martín de Porres|12" style="background:#1A0A00;">San Martín de Porres</option>
+                <option value="Independencia|12" style="background:#1A0A00;">Independencia</option>
+                <option value="Comas|12" style="background:#1A0A00;">Comas</option>
+                <option value="Callao|12" style="background:#1A0A00;">Callao</option>
+                <option value="Bellavista|12" style="background:#1A0A00;">Bellavista</option>
+                <option value="Carabayllo|12" style="background:#1A0A00;">Carabayllo</option>
+                <option value="Puente Piedra|12" style="background:#1A0A00;">Puente Piedra</option>
+                <option value="Lurín|12" style="background:#1A0A00;">Lurín</option>
+                <option value="Pachacamac|12" style="background:#1A0A00;">Pachacamac</option>
+                <option value="Ventanilla|12" style="background:#1A0A00;">Ventanilla</option>
               </optgroup>
             </select>
           </div>
@@ -1620,6 +1620,12 @@ setInterval(fetchConteoRemoto, 30000);
               <div style="color:rgba(255,253,247,0.7);font-size:11px;" id="zona-label">Zona A</div>
             </div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--amarillo);" id="precio-envio">S/ 0</div>
+          </div>
+
+          <!-- Aviso zona lejana -->
+          <div id="aviso-zona-lejana" style="display:none;background:rgba(255,215,0,0.08);border:1.5px solid rgba(255,215,0,0.3);border-radius:12px;padding:12px 14px;margin-bottom:10px;">
+            <div style="color:var(--amarillo);font-size:12px;font-weight:900;margin-bottom:5px;">📍 Tu zona está un poco lejos</div>
+            <div style="color:rgba(255,253,247,0.8);font-size:11px;line-height:1.7;">Si puedes pasar a recoger tu pedido por <strong style="color:white;">Metropolitana con Josfel — Ate</strong>, sería mucho mejor y sin costo adicional. 🙌<br>Pero si no puedes, <strong style="color:white;">haremos todo lo posible para llevarte tu pollada</strong> hasta donde estás. ❤️🍗</div>
           </div>
 
           <div class="field">
