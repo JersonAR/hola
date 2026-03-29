@@ -1091,6 +1091,7 @@ function actualizarQty() {
 }
 
 let metodoPago = '';
+let estadoPago = '';
 
 let tipoEntrega = 'recojo';
 let costoEnvio = 0;
@@ -1143,6 +1144,34 @@ function calcularEnvio() {
   document.getElementById('precio-envio').textContent = 'S/ ' + costoEnvio;
   const avisoLejana = document.getElementById('aviso-zona-lejana');
   if (avisoLejana) avisoLejana.style.display = costoEnvio >= 12 ? 'block' : 'none';
+}
+
+function selEstadoPago(estado) {
+  estadoPago = estado;
+  const btnPagado = document.getElementById('btn-est-pagado');
+  const btnPendiente = document.getElementById('btn-est-pendiente');
+  const secCaptura = document.getElementById('seccion-captura');
+  const notaPendiente = document.getElementById('nota-pago-pendiente');
+  if (estado === 'PAGADO') {
+    btnPagado.style.background = 'rgba(22,163,74,0.25)';
+    btnPagado.style.borderColor = 'rgba(74,222,128,0.7)';
+    btnPagado.style.color = '#4ADE80';
+    btnPendiente.style.background = 'rgba(255,255,255,0.04)';
+    btnPendiente.style.borderColor = 'rgba(255,255,255,0.15)';
+    btnPendiente.style.color = 'rgba(255,253,247,0.5)';
+    if (secCaptura) secCaptura.style.display = 'block';
+    if (notaPendiente) notaPendiente.style.display = 'none';
+  } else {
+    btnPendiente.style.background = 'rgba(234,179,8,0.2)';
+    btnPendiente.style.borderColor = 'rgba(234,179,8,0.6)';
+    btnPendiente.style.color = '#FDE68A';
+    btnPagado.style.background = 'rgba(255,255,255,0.04)';
+    btnPagado.style.borderColor = 'rgba(255,255,255,0.15)';
+    btnPagado.style.color = 'rgba(255,253,247,0.5)';
+    if (secCaptura) secCaptura.style.display = 'none';
+    if (notaPendiente) notaPendiente.style.display = 'block';
+  }
+  document.getElementById('est-pago-warning').style.display = 'none';
 }
 
 function selPago(m) {
@@ -1253,6 +1282,10 @@ function siguiente() {
     document.getElementById('rTotal').textContent = 'S/ ' + totalFinal.toLocaleString();
     irPaso(4);
   } else if (paso === 4) {
+    if (!estadoPago) {
+      document.getElementById('est-pago-warning').style.display = 'block';
+      return;
+    }
     enviarReserva();
   }
 }
@@ -1300,6 +1333,7 @@ async function enviarReserva() {
     metodoPago: metodoPago,
     costoEnvio: costoEnvio,
     totalFinal: totalFinal,
+    estadoPago: estadoPago,
     capturaBase64: capturaBase64,
   };
 
@@ -1326,7 +1360,7 @@ async function enviarReserva() {
   btn.textContent = 'CONFIRMAR RESERVA ✓';
   // Limpiar form
   ['fNombre','fDir','fRef','fTel','fMaps'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-  cantPierna = 0; cantPecho = 0; metodoPago = ''; costoEnvio = 0;
+  cantPierna = 0; cantPecho = 0; metodoPago = ''; costoEnvio = 0; estadoPago = '';
   actualizarQty();
   // Limpiar preview captura
   document.getElementById('preview-img').src = '';
@@ -1736,19 +1770,43 @@ render();
           <div class="res-fila"><span>Pago</span><strong id="rPago">—</strong></div>
           <div class="res-total"><span>TOTAL</span><span id="rTotal">S/ 20</span></div>
         </div>
-        <!-- Upload captura en confirmación -->
-        <div style="border:1.5px dashed rgba(255,107,26,0.35);border-radius:14px;padding:14px;text-align:center;cursor:pointer;margin-bottom:12px;transition:all 0.2s;background:rgba(255,107,26,0.04);" onclick="document.getElementById('inputCaptura').click()">
+        <!-- ¿Ya pagaste? -->
+        <div style="margin-bottom:14px;">
+          <div style="color:rgba(255,253,247,0.7);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">💳 ¿Ya realizaste el pago?</div>
+          <div style="display:flex;gap:10px;">
+            <button id="btn-est-pagado" onclick="selEstadoPago('PAGADO')"
+              style="flex:1;padding:12px 8px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);color:rgba(255,253,247,0.5);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all 0.2s;">
+              ✅ Sí, ya pagué
+            </button>
+            <button id="btn-est-pendiente" onclick="selEstadoPago('PENDIENTE')"
+              style="flex:1;padding:12px 8px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);color:rgba(255,253,247,0.5);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all 0.2s;">
+              ⏰ Lo pago después
+            </button>
+          </div>
+          <div id="est-pago-warning" style="display:none;margin-top:8px;background:rgba(232,35,42,0.15);border:1px solid rgba(232,35,42,0.4);border-radius:10px;padding:8px;text-align:center;color:#FCA5A5;font-size:12px;font-weight:700;">
+            ⚠️ Indica si ya realizaste el pago
+          </div>
+        </div>
+
+        <!-- Upload captura (solo si ya pagó) -->
+        <div id="seccion-captura" style="display:none;border:1.5px dashed rgba(255,107,26,0.35);border-radius:14px;padding:14px;text-align:center;cursor:pointer;margin-bottom:12px;transition:all 0.2s;background:rgba(255,107,26,0.04);" onclick="document.getElementById('inputCaptura').click()">
           <input type="file" id="inputCaptura" accept="image/*" style="display:none" onchange="mostrarCaptura(this)"/>
           <div id="upload-placeholder">
             <div style="font-size:26px;margin-bottom:5px;">📸</div>
-            <div style="color:rgba(255,253,247,0.8);font-size:13px;font-weight:800;">Sube aquí la captura de tu pago</div>
-            <div style="color:rgba(255,253,247,0.35);font-size:10px;margin-top:3px;letter-spacing:0.5px;">OPCIONAL · Toca para seleccionar imagen</div>
+            <div style="color:rgba(255,253,247,0.8);font-size:13px;font-weight:800;">Sube la captura de tu pago</div>
+            <div style="color:rgba(255,253,247,0.35);font-size:10px;margin-top:3px;letter-spacing:0.5px;">Toca para seleccionar imagen</div>
           </div>
           <div id="upload-preview" style="display:none;">
             <img id="preview-img" style="width:100%;max-height:130px;object-fit:contain;border-radius:8px;margin-bottom:6px;" alt="Captura"/>
             <div style="color:#4ADE80;font-size:12px;font-weight:800;">✓ Captura lista 📸</div>
             <div style="color:rgba(255,253,247,0.35);font-size:10px;margin-top:2px;">Toca para cambiar</div>
           </div>
+        </div>
+
+        <!-- Nota si paga después -->
+        <div id="nota-pago-pendiente" style="display:none;background:rgba(234,179,8,0.1);border:1.5px solid rgba(234,179,8,0.35);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
+          <div style="color:#FDE68A;font-size:12px;font-weight:900;margin-bottom:4px;">⏰ Reserva sin pago confirmado</div>
+          <div style="color:rgba(255,253,247,0.75);font-size:11px;line-height:1.7;">Recuerda que <strong style="color:white;">debes pagar antes del evento</strong> para asegurar tu porción. Te contactaremos para coordinar. 🍗❤️</div>
         </div>
 
         <p style="color:rgba(255,253,247,0.45);font-size:11px;text-align:center;line-height:1.6;">
