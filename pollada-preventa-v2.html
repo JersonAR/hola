@@ -979,12 +979,35 @@ const META = 375, PRECIO = 20;
 let reservas = [];
 try { reservas = JSON.parse(localStorage.getItem('pollada2') || '[]'); } catch(e){}
 
+// Conteo remoto (compartido entre todos)
+let conteoRemoto = { pedidos: 0, porciones: 0 };
+
 function save() { try { localStorage.setItem('pollada2', JSON.stringify(reservas)); } catch(e){} }
 
 function totalPorc() { return reservas.reduce((s,r) => s+r.c, 0); }
 
+function fetchConteoRemoto() {
+  if (!APPS_SCRIPT_URL) return;
+  const cbName = '_pollada_cb_' + Date.now();
+  window[cbName] = function(data) {
+    if (data && typeof data.porciones === 'number') {
+      conteoRemoto = data;
+      render();
+    }
+    delete window[cbName];
+    if (s && s.parentNode) s.parentNode.removeChild(s);
+  };
+  const s = document.createElement('script');
+  s.src = APPS_SCRIPT_URL + '?callback=' + cbName;
+  s.onerror = function() { delete window[cbName]; };
+  document.head.appendChild(s);
+}
+
 function render() {
-  const tot = totalPorc();
+  // Usar conteo remoto si es mayor que el local (refleja el total real)
+  const localTot = totalPorc();
+  const tot = Math.max(localTot, conteoRemoto.porciones);
+  const personas = Math.max(reservas.length, conteoRemoto.pedidos);
   const monto = tot * PRECIO;
   const pct = Math.min(100, (tot/META)*100).toFixed(0);
 
@@ -995,7 +1018,7 @@ function render() {
   document.getElementById('pctRes').textContent = pct + '% de la meta';
 
   // Stats
-  document.getElementById('sPersonas').textContent = reservas.length;
+  document.getElementById('sPersonas').textContent = personas;
   document.getElementById('sPorciones').textContent = tot;
   document.getElementById('sMonto').textContent = 'S/' + monto.toLocaleString();
 
@@ -1331,6 +1354,7 @@ async function enviarReserva() {
 
   cerrarModal();
   mostrarGracias();
+  setTimeout(fetchConteoRemoto, 3000); // refrescar conteo tras 3s para dar tiempo al Sheet
   btn.disabled = false;
   btn.textContent = 'CONFIRMAR RESERVA ✓';
   // Limpiar form
@@ -1419,6 +1443,8 @@ function compartirYape() {
 
 document.addEventListener('keydown', e => { if(e.key === 'Enter') agregar(); });
 render();
+fetchConteoRemoto();
+setInterval(fetchConteoRemoto, 30000);
 </script>
 
 <!-- ══ OVERLAY FORMULARIO ══ -->
